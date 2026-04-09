@@ -1,1 +1,1 @@
-{"name": "ZTFJ1946+5543", "ztf_id": "ZTF25aanmfif", "jd": [2460847.8653588, 2460785.9487963, 2460851.8876389, 2460882.845162, 2460823.8727315, 2460796.966169], "mag": [19.0829, 20.438, 21.7614, 21.2132, 20.5505, 22.2187], "mag_unc": [0.0558, 0.1653, 0.6447, 0.5452, 0.1676, 1.3159], "filter": ["ZTF_g", "ZTF_r", "ZTF_r", "ZTF_g", "ZTF_r", "ZTF_g"], "objectId": ["ZTF25aawmstw", "ZTF25aanmfif", "ZTF25aanmfif", "ZTF25aanmfif", "ZTF25aanmfif", "ZTF25aanmfif"]}
+{"name": "ZTFJ1946+5543", "ztf_id": "ZTF25aanmfif", "jd": [], "mag": [], "mag_unc": [], "filter": [], "objectId": []}

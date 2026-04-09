@@ -124,6 +124,7 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    first_done = False
     for _, obj in objects.iterrows():
         name = obj["name"]
         ztf_id = obj["ztf_id"]
@@ -135,24 +136,12 @@ def main():
         q = make_query(ra, dec)
         response = k.query(q)
 
-        # Debug: print response structure for first object
-        if _ == 0:
+        # Debug: print full response for first object
+        if not first_done:
+            first_done = True
+            print(f"DEBUG query: {json.dumps(q, indent=2)}")
             print(f"DEBUG response type: {type(response)}")
-            if isinstance(response, dict):
-                print(f"DEBUG response keys: {list(response.keys())}")
-                for k1, v1 in response.items():
-                    if isinstance(v1, dict):
-                        print(f"DEBUG response['{k1}'] keys: {list(v1.keys())}")
-                        for k2, v2 in v1.items():
-                            if isinstance(v2, dict):
-                                print(f"DEBUG response['{k1}']['{k2}'] keys: {list(v2.keys())}")
-                                for k3, v3 in v2.items():
-                                    if isinstance(v3, (list, dict)):
-                                        print(f"DEBUG response['{k1}']['{k2}']['{k3}'] type={type(v3).__name__} len={len(v3)}")
-                                    else:
-                                        print(f"DEBUG response['{k1}']['{k2}']['{k3}'] = {v3}")
-            else:
-                print(f"DEBUG response (first 500 chars): {str(response)[:500]}")
+            print(f"DEBUG response: {json.dumps(response, indent=2, default=str)[:2000]}")
 
         alerts = extract_alerts(response)
 

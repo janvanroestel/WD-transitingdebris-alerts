@@ -107,14 +107,9 @@ def make_query(ra, dec, radius=3.0):
 def extract_alerts(response, query_key="target"):
     """Extract alert data from Kowalski response."""
     try:
-        alerts = response["default"]["ZTF_alerts"][query_key]
+        alerts = response["default"]["data"]["ZTF_alerts"][query_key]
     except (KeyError, TypeError):
-        # Try alternative response structures
-        try:
-            data = response.get("data", response)
-            alerts = data["ZTF_alerts"][query_key]
-        except (KeyError, TypeError):
-            return []
+        return []
     return alerts if isinstance(alerts, list) else []
 
 
@@ -124,7 +119,6 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    first_done = False
     for _, obj in objects.iterrows():
         name = obj["name"]
         ztf_id = obj["ztf_id"]
@@ -135,14 +129,6 @@ def main():
 
         q = make_query(ra, dec)
         response = k.query(q)
-
-        # Debug: print full response for first object
-        if not first_done:
-            first_done = True
-            print(f"DEBUG query: {json.dumps(q, indent=2)}")
-            print(f"DEBUG response type: {type(response)}")
-            print(f"DEBUG response: {json.dumps(response, indent=2, default=str)[:2000]}")
-
         alerts = extract_alerts(response)
 
         jd_list = []

@@ -1,1 +1,1 @@
-{"name": "SDSSJ0107+2107", "ztf_id": "ZTF18abvsplm", "jd": [], "mag": [], "mag_unc": [], "filter": [], "objectId": []}
+{"name": "SDSSJ0107+2107", "ztf_id": "ZTF18abvsplm", "jd": [2460948.8841667, 2458374.916412, 2458763.8536921, 2458699.9550579], "mag": [20.0539, 18.9928, 19.7893, 19.0166], "mag_unc": [0.2243, 0.0547, 0.1168, 0.0539], "filter": ["ZTF_r", "ZTF_g", "ZTF_r", "ZTF_g"], "objectId": ["ZTF18abvsplm", "ZTF18abvsplm", "ZTF18abvsplm", "ZTF18abvsplm"]}

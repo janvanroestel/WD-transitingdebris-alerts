@@ -249,10 +249,12 @@ def main():
     <h1>White Dwarf Debris Monitor</h1>
     <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: {now}. </p>
     
-    <p class="subtitle">Notes:<br> If you use this page, please cite van Roestel et al. 2026.<br>
-    ZTF forced photometry is updated manually once every few months. The forced photometry does not correct for proper motion which can result in long term trends in the lightcurve.<br> 
-    
-    This page is inspired by https://zvanderbosch.github.io/debris_monitoring/
+    <p class="subtitle">Notes:
+    <ul style="margin:4px 0 4px 20px; text-align:left; display:inline-block;">
+    <li>If you use this page, please cite van Roestel et al. 2026.</li>
+    <li>ZTF forced photometry is updated manually once every few months. The forced photometry does not correct for proper motion which can result in long term trends in the lightcurve.</li>
+    <li>This page is inspired by <a href="https://zvanderbosch.github.io/debris_monitoring/">zvanderbosch.github.io/debris_monitoring</a>.</li>
+    </ul>
     </p>
 
     {recent_html}
@@ -269,7 +271,7 @@ def main():
             <button class="toggle-btn" data-mode="mag">Magnitude</button>
         </div>
         <div class="toggle-group" id="snr-toggle">
-            <button class="toggle-btn active" data-snr="true">Remove low SNR</button>
+            <button class="toggle-btn" data-snr="true">Remove low SNR</button>
             <button class="toggle-btn" data-snr="false">Show all</button>
         </div>
     </div>
@@ -288,7 +290,7 @@ const FILTER_LABELS = {{"ZTF_g": "g", "ZTF_r": "r", "ZTF_i": "i"}};
 const FILTERS = ["ZTF_g", "ZTF_r", "ZTF_i"];
 
 let currentMode = "norm_flux";
-let filterSNR = true;
+let filterSNR = false;
 let currentGroup = "{groups_with_data[0][0] if groups_with_data else "new"}";
 
 function median(arr) {{
@@ -335,7 +337,7 @@ function getTraces(objData, mode) {{
         }}
     }}
 
-    function addTraces(src, srcLabel, symbol, size) {{
+    function addTraces(src, srcLabel, symbol, size, applySnrFilter) {{
         if (!src || !src.mjd || src.mjd.length === 0) return;
         for (const filt of FILTERS) {{
             let idx = [];
@@ -345,7 +347,7 @@ function getTraces(objData, mode) {{
             if (idx.length === 0) continue;
 
             // Filter low SNR: remove points with unc > 0.2 * median(value) in current mode
-            if (filterSNR) {{
+            if (filterSNR && applySnrFilter) {{
                 let vals, uncs;
                 if (mode === "mag" || mode === "norm_mag") {{
                     vals = idx.map(i => src.mag[i]);
@@ -399,8 +401,8 @@ function getTraces(objData, mode) {{
         }}
     }}
 
-    addTraces(objData.fp, "Forced phot", "circle", 3);
-    addTraces(objData.alerts, "Alerts", "x", 7);
+    addTraces(objData.fp, "Forced phot", "circle", 3, true);
+    addTraces(objData.alerts, "Alerts", "x", 7, false);
 
     return traces;
 }}

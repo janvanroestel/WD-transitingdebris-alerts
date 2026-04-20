@@ -6,23 +6,57 @@
     <title>White Dwarf Debris Monitor</title>
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
     <style>
+        :root {
+            --bg: #fafafa;
+            --fg: #333;
+            --fg2: #555;
+            --fg3: #666;
+            --fg4: #888;
+            --fg5: #999;
+            --border: #ddd;
+            --border2: #ccc;
+            --card-bg: #ffffff;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --active-bg: #333;
+            --active-fg: #ffffff;
+            --link: #333;
+            --highlight: #ffe97a;
+        }
+        html[data-theme="dark"] {
+            --bg: #15181c;
+            --fg: #e6e6e6;
+            --fg2: #c8c8c8;
+            --fg3: #a8a8a8;
+            --fg4: #888;
+            --fg5: #666;
+            --border: #2a2f35;
+            --border2: #3a4049;
+            --card-bg: #1e2227;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            --active-bg: #e6e6e6;
+            --active-fg: #15181c;
+            --link: #88b8ff;
+            --highlight: #554a1f;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background: #fafafa;
-            color: #333;
+            background: var(--bg);
+            color: var(--fg);
+            transition: background 0.2s, color 0.2s;
         }
         h1 {
-            border-bottom: 2px solid #333;
+            border-bottom: 2px solid var(--fg);
             padding-bottom: 10px;
         }
         .subtitle {
-            color: #666;
+            color: var(--fg3);
             margin-top: -10px;
             margin-bottom: 30px;
         }
+        .subtitle a { color: var(--link); }
         .controls {
             display: flex;
             gap: 16px;
@@ -32,31 +66,31 @@
         }
         .toggle-group {
             display: flex;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border2);
             border-radius: 6px;
             overflow: hidden;
         }
         .toggle-btn {
             padding: 6px 14px;
             border: none;
-            background: white;
+            background: var(--card-bg);
             cursor: pointer;
             font-size: 14px;
-            color: #555;
+            color: var(--fg2);
             transition: background 0.15s, color 0.15s;
         }
         .toggle-btn.active {
-            background: #333;
-            color: white;
+            background: var(--active-bg);
+            color: var(--active-fg);
         }
         .toggle-btn:not(:last-child) {
-            border-right: 1px solid #ccc;
+            border-right: 1px solid var(--border2);
         }
         .tab-bar {
             display: flex;
             gap: 0;
             margin-bottom: 24px;
-            border-bottom: 2px solid #ddd;
+            border-bottom: 2px solid var(--border);
         }
         .tab-btn {
             padding: 8px 20px;
@@ -65,21 +99,27 @@
             cursor: pointer;
             font-size: 15px;
             font-weight: 500;
-            color: #888;
+            color: var(--fg4);
             border-bottom: 2px solid transparent;
             margin-bottom: -2px;
             transition: color 0.15s, border-color 0.15s;
         }
         .tab-btn.active {
-            color: #333;
-            border-bottom-color: #333;
+            color: var(--fg);
+            border-bottom-color: var(--fg);
         }
         .plot-container {
-            background: white;
+            background: var(--card-bg);
             border-radius: 8px;
             padding: 10px;
             margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--card-shadow);
+            transition: box-shadow 0.3s, outline-color 0.3s;
+            outline: 2px solid transparent;
+        }
+        .plot-container.highlighted {
+            outline-color: var(--highlight);
+            box-shadow: 0 0 0 6px var(--highlight);
         }
         .recent-alerts {
             margin-bottom: 24px;
@@ -97,25 +137,45 @@
             text-align: left;
         }
         .recent-alerts th {
-            color: #888;
+            color: var(--fg4);
             font-weight: 500;
         }
         .alert-link {
-            color: #333;
+            color: var(--link);
             text-decoration: underline;
         }
         .footer {
             text-align: center;
-            color: #999;
+            color: var(--fg5);
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--border);
+        }
+        .theme-btn {
+            margin-left: auto;
+            padding: 6px 12px;
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--fg2);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        @media (max-width: 720px) {
+            body { padding: 12px; }
+            h1 { font-size: 22px; }
+            .controls { gap: 8px; }
+            .toggle-btn { padding: 6px 10px; font-size: 13px; }
+            .tab-btn { padding: 8px 12px; font-size: 14px; }
+            .recent-alerts th, .recent-alerts td { padding: 4px 8px 4px 0; font-size: 13px; }
+            .plot-container { padding: 4px; margin-bottom: 18px; }
+            .theme-btn { margin-left: 0; }
         }
     </style>
 </head>
 <body>
     <h1>White Dwarf Debris Monitor</h1>
-    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-04-20 21:01 UTC. </p>
+    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-04-20 21:08 UTC. </p>
     
     <p class="subtitle">Notes:
     <ul style="margin:4px 0 4px 20px; text-align:left; display:inline-block;">
@@ -145,6 +205,7 @@
             <button class="toggle-btn" data-snr="true">Remove low SNR</button>
             <button class="toggle-btn" data-snr="false">Show all</button>
         </div>
+        <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">Dark</button>
     </div>
 
     <div class="plot-container" data-group="new"><div id="plot-0"></div></div><div class="plot-container" data-group="new"><div id="plot-1"></div></div><div class="plot-container" data-group="new"><div id="plot-2"></div></div><div class="plot-container" data-group="new"><div id="plot-3"></div></div><div class="plot-container" data-group="new"><div id="plot-4"></div></div><div class="plot-container" data-group="new"><div id="plot-5"></div></div><div class="plot-container" data-group="known"><div id="plot-6"></div></div><div class="plot-container" data-group="known"><div id="plot-7"></div></div><div class="plot-container" data-group="known"><div id="plot-8"></div></div><div class="plot-container" data-group="known"><div id="plot-9"></div></div><div class="plot-container" data-group="known"><div id="plot-10"></div></div><div class="plot-container" data-group="known"><div id="plot-11"></div></div><div class="plot-container" data-group="known"><div id="plot-12"></div></div><div class="plot-container" data-group="known"><div id="plot-13"></div></div><div class="plot-container" data-group="known"><div id="plot-14"></div></div><div class="plot-container" data-group="known"><div id="plot-15"></div></div><div class="plot-container" data-group="known"><div id="plot-16"></div></div><div class="plot-container" data-group="known"><div id="plot-17"></div></div><div class="plot-container" data-group="known"><div id="plot-18"></div></div><div class="plot-container" data-group="known"><div id="plot-19"></div></div>
@@ -318,16 +379,26 @@ function getLayout(objData, mode) {
     if (objData.alert_last_jd) subtitles.push("Last alert: " + mjdToDateStr(objData.alert_last_jd));
     if (subtitles.length) titleText += "  <span style='font-size:12px;color:#888'>" + subtitles.join(" | ") + "</span>";
 
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    const fg = isDark ? "#e6e6e6" : "#333";
+    const gridColor = isDark ? "#2a2f35" : "#e6e6e6";
+    const paper = isDark ? "#1e2227" : "#ffffff";
+
     return {
-        title: {text: titleText, font: {size: 16}},
-        xaxis: {title: "MJD"},
-        yaxis: {title: yTitle, autorange: reversed ? "reversed" : true},
+        title: {text: titleText, font: {size: isMobile ? 13 : 16, color: fg}},
+        xaxis: {title: "MJD", color: fg, gridcolor: gridColor, zerolinecolor: gridColor},
+        yaxis: {title: yTitle, autorange: reversed ? "reversed" : true,
+                 color: fg, gridcolor: gridColor, zerolinecolor: gridColor},
         shapes: shapes,
         annotations: annotations,
-        template: "plotly_white",
-        height: 400,
-        margin: {l: 60, r: 30, t: 50, b: 50},
-        legend: {orientation: "h", yanchor: "bottom", y: 1.02, xanchor: "right", x: 1},
+        paper_bgcolor: paper,
+        plot_bgcolor: paper,
+        font: {color: fg},
+        height: isMobile ? 280 : 400,
+        margin: isMobile ? {l: 50, r: 10, t: 40, b: 40} : {l: 60, r: 30, t: 50, b: 50},
+        legend: {orientation: "h", yanchor: "bottom", y: 1.02, xanchor: "right", x: 1,
+                  font: {color: fg}},
     };
 }
 
@@ -392,17 +463,52 @@ document.querySelectorAll(".alert-link").forEach(link => {
         e.preventDefault();
         const group = this.dataset.group;
         const plotIdx = this.dataset.plot;
-        if (group !== currentGroup) {
+        const groupChanged = group !== currentGroup;
+        if (groupChanged) {
             currentGroup = group;
             document.querySelectorAll("#group-tabs .tab-btn").forEach(b => b.classList.remove("active"));
             document.querySelector('#group-tabs .tab-btn[data-group="' + group + '"]').classList.add("active");
             renderAll();
         }
-        // Scroll to plot after render
-        requestAnimationFrame(function() {
-            document.getElementById("plot-" + plotIdx).scrollIntoView({behavior: "smooth", block: "center"});
-        });
+        // Scroll + highlight after render
+        const doScroll = function() {
+            const container = document.getElementById("plot-" + plotIdx).parentElement;
+            container.scrollIntoView({behavior: "smooth", block: "center"});
+            container.classList.remove("highlighted");
+            // Force reflow so re-adding the class restarts the transition
+            void container.offsetWidth;
+            container.classList.add("highlighted");
+            setTimeout(() => container.classList.remove("highlighted"), 2000);
+        };
+        if (groupChanged) requestAnimationFrame(() => requestAnimationFrame(doScroll));
+        else requestAnimationFrame(doScroll);
     });
+});
+
+// Dark mode toggle (persisted in localStorage)
+const themeBtn = document.getElementById("theme-btn");
+function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t === "dark" ? "Light" : "Dark";
+}
+const savedTheme = localStorage.getItem("wd-theme")
+    || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(savedTheme);
+themeBtn.addEventListener("click", function() {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem("wd-theme", next);
+    applyTheme(next);
+    renderAll();
+});
+
+// Re-render on mobile/desktop breakpoint changes so plot sizing updates
+let lastMobile = window.matchMedia("(max-width: 720px)").matches;
+window.addEventListener("resize", function() {
+    const isMobile = window.matchMedia("(max-width: 720px)").matches;
+    if (isMobile !== lastMobile) {
+        lastMobile = isMobile;
+        renderAll();
+    }
 });
 
 // Initial render

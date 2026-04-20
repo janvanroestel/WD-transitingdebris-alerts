@@ -592,12 +592,25 @@ document.querySelectorAll(".alert-link").forEach(link => {{
         e.preventDefault();
         const group = this.dataset.group;
         const plotIdx = this.dataset.plot;
+        const objName = this.textContent.trim();
         const groupChanged = group !== currentGroup;
         if (groupChanged) {{
             currentGroup = group;
             document.querySelectorAll("#group-tabs .tab-btn").forEach(b => b.classList.remove("active"));
             document.querySelector('#group-tabs .tab-btn[data-group="' + group + '"]').classList.add("active");
             renderAll();
+        }}
+        // Update hash to include focused object (for sharing)
+        if (typeof writeHash === "function") {{
+            const parts = [
+                "mode=" + encodeURIComponent(currentMode),
+                "snr=" + (filterSNR ? "true" : "false"),
+                "group=" + encodeURIComponent(currentGroup),
+                "obj=" + encodeURIComponent(objName),
+            ];
+            suppressHashUpdate = true;
+            history.replaceState(null, "", "#" + parts.join("&"));
+            suppressHashUpdate = false;
         }}
         // Scroll + highlight after render
         const doScroll = function() {{
@@ -640,8 +653,83 @@ window.addEventListener("resize", function() {{
     }}
 }});
 
-// Initial render
-renderAll();
+// ── URL hash state ──
+// Encodes mode, snr, group, and (optionally) the focused object
+// e.g. #mode=norm_flux&snr=false&group=known&obj=SBSS1232%2B563
+const VALID_MODES = new Set(["norm_flux", "flux", "norm_mag", "mag"]);
+const VALID_GROUPS = new Set(Array.from(document.querySelectorAll("#group-tabs .tab-btn")).map(b => b.dataset.group));
+let suppressHashUpdate = false;
+
+function parseHash() {{
+    const h = window.location.hash.replace(/^#/, "");
+    const params = {{}};
+    for (const part of h.split("&")) {{
+        if (!part) continue;
+        const [k, v] = part.split("=");
+        if (k) params[k] = decodeURIComponent(v || "");
+    }}
+    return params;
+}}
+
+function writeHash() {{
+    if (suppressHashUpdate) return;
+    const parts = [
+        "mode=" + encodeURIComponent(currentMode),
+        "snr=" + (filterSNR ? "true" : "false"),
+        "group=" + encodeURIComponent(currentGroup),
+    ];
+    const newHash = "#" + parts.join("&");
+    if (window.location.hash !== newHash) {{
+        history.replaceState(null, "", newHash);
+    }}
+}}
+
+function applyHashState() {{
+    const p = parseHash();
+    if (p.mode && VALID_MODES.has(p.mode)) currentMode = p.mode;
+    if (p.snr === "true") filterSNR = true;
+    else if (p.snr === "false") filterSNR = false;
+    if (p.group && VALID_GROUPS.has(p.group)) currentGroup = p.group;
+
+    // Sync button active states
+    document.querySelectorAll("#mode-toggle .toggle-btn").forEach(b => {{
+        b.classList.toggle("active", b.dataset.mode === currentMode);
+    }});
+    document.querySelectorAll("#snr-toggle .toggle-btn").forEach(b => {{
+        b.classList.toggle("active", (b.dataset.snr === "true") === filterSNR);
+    }});
+    document.querySelectorAll("#group-tabs .tab-btn").forEach(b => {{
+        b.classList.toggle("active", b.dataset.group === currentGroup);
+    }});
+    return p.obj;
+}}
+
+// Wrap state-changing handlers to update the hash
+const _origRenderAll = renderAll;
+renderAll = function() {{ _origRenderAll(); writeHash(); }};
+
+window.addEventListener("hashchange", function() {{
+    suppressHashUpdate = true;
+    applyHashState();
+    _origRenderAll();
+    suppressHashUpdate = false;
+}});
+
+// Initial state from hash, then render + optional scroll-to-object
+const initialObj = applyHashState();
+_origRenderAll();
+writeHash();
+if (initialObj) {{
+    const match = DATA.findIndex(d => d.name === initialObj && d.group === currentGroup);
+    if (match >= 0) {{
+        requestAnimationFrame(() => requestAnimationFrame(() => {{
+            const container = document.getElementById("plot-" + match).parentElement;
+            container.scrollIntoView({{behavior: "smooth", block: "center"}});
+            container.classList.add("highlighted");
+            setTimeout(() => container.classList.remove("highlighted"), 2000);
+        }}));
+    }}
+}}
 </script>
 </body>
 </html>"""

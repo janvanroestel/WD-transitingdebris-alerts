@@ -7,6 +7,8 @@ to support toggling between flux/mag and normalized/raw views.
 import os
 import json
 import datetime
+from datetime import timedelta
+from urllib.parse import quote
 import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,11 +124,30 @@ def main():
     else:
         recent_html = '<div class="recent-alerts"><h3>No alerts in the last 2 weeks</h3></div>'
 
-    # Build plot container divs with group attribute
+    # Build plot container divs with group attribute; SIMBAD link and
+    # last-updated dates live as real HTML above each plot so links work.
     plot_divs = []
     for i, obj in enumerate(all_data):
+        coord = f"{obj['ra_sex']} {obj['dec_sex']}"
+        simbad_url = (
+            "https://simbad.cds.unistra.fr/simbad/sim-coo?"
+            f"Coord={quote(coord)}&Radius=5&Radius.unit=arcsec"
+        )
+        subtitle_parts = []
+        mjd_epoch = datetime.datetime(1858, 11, 17)
+        if obj.get("fp_last_jd") is not None:
+            fp_date = (mjd_epoch + timedelta(days=obj["fp_last_jd"])).strftime("%Y-%m-%d")
+            subtitle_parts.append(f"Last FP: {fp_date}")
+        if obj.get("alert_last_jd") is not None:
+            al_date = (mjd_epoch + timedelta(days=obj["alert_last_jd"])).strftime("%Y-%m-%d")
+            subtitle_parts.append(f"Last alert: {al_date}")
+        subtitle = " | ".join(subtitle_parts)
         plot_divs.append(
             f'<div class="plot-container" data-group="{obj["group"]}">'
+            f'<div class="plot-title">'
+            f'<a href="{simbad_url}" target="_blank" rel="noopener">{obj["name"]}</a>'
+            f'{f" <span>{subtitle}</span>" if subtitle else ""}'
+            f'</div>'
             f'<div id="plot-{i}"></div></div>'
         )
 
@@ -252,6 +273,25 @@ def main():
         .plot-container.highlighted {{
             outline-color: var(--highlight);
             box-shadow: 0 0 0 6px var(--highlight);
+        }}
+        .plot-title {{
+            padding: 4px 10px 0 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--fg);
+        }}
+        .plot-title a {{
+            color: var(--fg);
+            text-decoration: underline;
+        }}
+        .plot-title a:hover {{
+            color: var(--link);
+        }}
+        .plot-title span {{
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--fg4);
+            margin-left: 10px;
         }}
         .recent-alerts {{
             margin-bottom: 24px;
@@ -501,13 +541,6 @@ function getLayout(objData, mode) {{
         font: {{size: 10, color: "#888"}},
     }}];
 
-    const simbadUrl = "https://simbad.u-strasbg.fr/simbad/sim-coo?Coord=" + encodeURIComponent(objData.ra_sex + " " + objData.dec_sex) + "&Radius=5&Radius.unit=arcsec";
-    let titleText = "<a href='" + simbadUrl + "' target='_blank' style='color:inherit;text-decoration:underline'>" + objData.name + "</a>";
-    const subtitles = [];
-    if (objData.fp_last_jd) subtitles.push("Last FP: " + mjdToDateStr(objData.fp_last_jd));
-    if (objData.alert_last_jd) subtitles.push("Last alert: " + mjdToDateStr(objData.alert_last_jd));
-    if (subtitles.length) titleText += "  <span style='font-size:12px;color:#888'>" + subtitles.join(" | ") + "</span>";
-
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const isMobile = window.matchMedia("(max-width: 720px)").matches;
     const fg = isDark ? "#e6e6e6" : "#333";
@@ -515,7 +548,6 @@ function getLayout(objData, mode) {{
     const paper = isDark ? "#1e2227" : "#ffffff";
 
     return {{
-        title: {{text: titleText, font: {{size: isMobile ? 13 : 16, color: fg}}}},
         xaxis: {{title: "MJD", color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},
         yaxis: {{title: yTitle, autorange: reversed ? "reversed" : true,
                  color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},
@@ -524,8 +556,8 @@ function getLayout(objData, mode) {{
         paper_bgcolor: paper,
         plot_bgcolor: paper,
         font: {{color: fg}},
-        height: isMobile ? 280 : 400,
-        margin: isMobile ? {{l: 50, r: 10, t: 40, b: 40}} : {{l: 60, r: 30, t: 50, b: 50}},
+        height: isMobile ? 260 : 360,
+        margin: isMobile ? {{l: 50, r: 10, t: 30, b: 40}} : {{l: 60, r: 30, t: 30, b: 50}},
         legend: {{orientation: "h", yanchor: "bottom", y: 1.02, xanchor: "right", x: 1,
                   font: {{color: fg}}}},
     }};

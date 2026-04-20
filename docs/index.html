@@ -121,6 +121,25 @@
             outline-color: var(--highlight);
             box-shadow: 0 0 0 6px var(--highlight);
         }
+        .plot-title {
+            padding: 4px 10px 0 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+        .plot-title a {
+            color: var(--fg);
+            text-decoration: underline;
+        }
+        .plot-title a:hover {
+            color: var(--link);
+        }
+        .plot-title span {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--fg4);
+            margin-left: 10px;
+        }
         .recent-alerts {
             margin-bottom: 24px;
         }
@@ -175,7 +194,7 @@
 </head>
 <body>
     <h1>White Dwarf Debris Monitor</h1>
-    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-04-20 21:15 UTC. </p>
+    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-04-20 21:20 UTC. </p>
     
     <p class="subtitle">Notes:
     <ul style="margin:4px 0 4px 20px; text-align:left; display:inline-block;">
@@ -208,7 +227,7 @@
         <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">Dark</button>
     </div>
 
-    <div class="plot-container" data-group="new"><div id="plot-0"></div></div><div class="plot-container" data-group="new"><div id="plot-1"></div></div><div class="plot-container" data-group="new"><div id="plot-2"></div></div><div class="plot-container" data-group="new"><div id="plot-3"></div></div><div class="plot-container" data-group="new"><div id="plot-4"></div></div><div class="plot-container" data-group="new"><div id="plot-5"></div></div><div class="plot-container" data-group="known"><div id="plot-6"></div></div><div class="plot-container" data-group="known"><div id="plot-7"></div></div><div class="plot-container" data-group="known"><div id="plot-8"></div></div><div class="plot-container" data-group="known"><div id="plot-9"></div></div><div class="plot-container" data-group="known"><div id="plot-10"></div></div><div class="plot-container" data-group="known"><div id="plot-11"></div></div><div class="plot-container" data-group="known"><div id="plot-12"></div></div><div class="plot-container" data-group="known"><div id="plot-13"></div></div><div class="plot-container" data-group="known"><div id="plot-14"></div></div><div class="plot-container" data-group="known"><div id="plot-15"></div></div><div class="plot-container" data-group="known"><div id="plot-16"></div></div><div class="plot-container" data-group="known"><div id="plot-17"></div></div><div class="plot-container" data-group="known"><div id="plot-18"></div></div><div class="plot-container" data-group="known"><div id="plot-19"></div></div>
+    <div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=00%3A15%3A39.19%20%2B30%3A38%3A14.76&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0015+3038</a> <span>Last FP: 2025-01-06 | Last alert: 2022-12-24</span></div><div id="plot-0"></div></div><div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=03%3A13%3A00.54%20%2B52%3A06%3A46.31&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0313+5206</a> <span>Last FP: 2025-06-30 | Last alert: 2022-10-28</span></div><div id="plot-1"></div></div><div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=04%3A36%3A35.46%20%2B57%3A28%3A40.30&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0436+5728</a> <span>Last FP: 2025-04-10 | Last alert: 2021-01-18</span></div><div id="plot-2"></div></div><div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=19%3A44%3A15.16%20-24%3A51%3A31.12&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ1944-2451</a> <span>Last FP: 2025-06-28 | Last alert: 2024-07-14</span></div><div id="plot-3"></div></div><div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=19%3A46%3A28.67%20%2B55%3A43%3A04.48&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ1946+5543</a> <span>Last FP: 2025-10-04 | Last alert: 2025-07-26</span></div><div id="plot-4"></div></div><div class="plot-container" data-group="new"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=23%3A27%3A24.86%20%2B00%3A19%3A42.18&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ2327+0019</a> <span>Last FP: 2025-12-08 | Last alert: 2025-10-27</span></div><div id="plot-5"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=01%3A07%3A49.30%20%2B21%3A07%3A44.48&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">SDSSJ0107+2107</a> <span>Last FP: 2026-03-08 | Last alert: 2025-09-30</span></div><div id="plot-6"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=01%3A39%3A06.31%20%2B52%3A45%3A37.05&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0139+5245</a> <span>Last FP: 2026-03-13 | Last alert: 2021-09-14</span></div><div id="plot-7"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=03%3A28%3A33.66%20-12%3A19%3A45.64&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0328-1219</a> <span>Last FP: 2026-03-20 | Last alert: 2026-03-20</span></div><div id="plot-8"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=03%3A47%3A03.35%20-18%3A02%3A53.51&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0347-1802</a> <span>Last FP: 2026-03-02 | Last alert: 2019-10-25</span></div><div id="plot-9"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=09%3A23%3A11.39%20%2B42%3A36%3A33.70&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ0923+4236</a> <span>Last FP: 2026-04-07 | Last alert: 2026-02-02</span></div><div id="plot-10"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=09%3A23%3A51.44%2073%3A26%3A23.68&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WDJ0923+7326</a> <span>Last FP: 2026-04-07 | Last alert: 2026-04-16</span></div><div id="plot-11"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=10%3A13%3A06.34%20-04%3A27%3A29.90&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WDJ1013-0427</a> <span>Last FP: 2026-02-22 | Last alert: 2026-04-16</span></div><div id="plot-12"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=10%3A56%3A38.63%20-22%3A52%3A56.08&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WD1054-226</a></div><div id="plot-13"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=11%3A48%3A33.54%20%2B01%3A28%3A59.40&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WD1145+017</a> <span>Last FP: 2026-04-07 | Last alert: 2026-04-20</span></div><div id="plot-14"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=12%3A34%3A32.58%2056%3A06%3A42.84&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">SBSS1232+563</a> <span>Last FP: 2026-04-07 | Last alert: 2023-06-25</span></div><div id="plot-15"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=12%3A37%3A54.23%2059%3A37%3A27.29&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WD1237+5937</a> <span>Last FP: 2026-04-07</span></div><div id="plot-16"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=13%3A02%3A17.67%2016%3A50%3A08.43&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">ZTFJ1302+1650</a> <span>Last FP: 2026-04-07 | Last alert: 2026-03-25</span></div><div id="plot-17"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=16%3A50%3A50.01%2014%3A43%3A22.46&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WDJ1650+1443</a> <span>Last FP: 2026-04-03</span></div><div id="plot-18"></div></div><div class="plot-container" data-group="known"><div class="plot-title"><a href="https://simbad.cds.unistra.fr/simbad/sim-coo?Coord=19%3A44%3A31.88%2045%3A57%3A53.22&Radius=5&Radius.unit=arcsec" target="_blank" rel="noopener">WD1944+4557</a> <span>Last FP: 2026-04-05 | Last alert: 2025-07-01</span></div><div id="plot-19"></div></div>
 
     <div class="footer">
         Data from the Zwicky Transient Facility (ZTF). Circles: forced photometry. Crosses: alerts.
@@ -372,13 +391,6 @@ function getLayout(objData, mode) {
         font: {size: 10, color: "#888"},
     }];
 
-    const simbadUrl = "https://simbad.u-strasbg.fr/simbad/sim-coo?Coord=" + encodeURIComponent(objData.ra_sex + " " + objData.dec_sex) + "&Radius=5&Radius.unit=arcsec";
-    let titleText = "<a href='" + simbadUrl + "' target='_blank' style='color:inherit;text-decoration:underline'>" + objData.name + "</a>";
-    const subtitles = [];
-    if (objData.fp_last_jd) subtitles.push("Last FP: " + mjdToDateStr(objData.fp_last_jd));
-    if (objData.alert_last_jd) subtitles.push("Last alert: " + mjdToDateStr(objData.alert_last_jd));
-    if (subtitles.length) titleText += "  <span style='font-size:12px;color:#888'>" + subtitles.join(" | ") + "</span>";
-
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const isMobile = window.matchMedia("(max-width: 720px)").matches;
     const fg = isDark ? "#e6e6e6" : "#333";
@@ -386,7 +398,6 @@ function getLayout(objData, mode) {
     const paper = isDark ? "#1e2227" : "#ffffff";
 
     return {
-        title: {text: titleText, font: {size: isMobile ? 13 : 16, color: fg}},
         xaxis: {title: "MJD", color: fg, gridcolor: gridColor, zerolinecolor: gridColor},
         yaxis: {title: yTitle, autorange: reversed ? "reversed" : true,
                  color: fg, gridcolor: gridColor, zerolinecolor: gridColor},
@@ -395,8 +406,8 @@ function getLayout(objData, mode) {
         paper_bgcolor: paper,
         plot_bgcolor: paper,
         font: {color: fg},
-        height: isMobile ? 280 : 400,
-        margin: isMobile ? {l: 50, r: 10, t: 40, b: 40} : {l: 60, r: 30, t: 50, b: 50},
+        height: isMobile ? 260 : 360,
+        margin: isMobile ? {l: 50, r: 10, t: 30, b: 40} : {l: 60, r: 30, t: 30, b: 50},
         legend: {orientation: "h", yanchor: "bottom", y: 1.02, xanchor: "right", x: 1,
                   font: {color: fg}},
     };

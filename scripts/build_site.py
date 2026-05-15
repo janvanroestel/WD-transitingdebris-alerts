@@ -143,7 +143,8 @@ def main():
             subtitle_parts.append(f"Last alert: {al_date}")
         subtitle = " | ".join(subtitle_parts)
         plot_divs.append(
-            f'<div class="plot-container" data-group="{obj["group"]}">'
+            f'<div class="plot-container" data-group="{obj["group"]}" '
+            f'data-plot-idx="{i}" style="min-height:380px">'
             f'<div class="plot-title">'
             f'<a href="{simbad_url}" target="_blank" rel="noopener">{obj["name"]}</a>'
             f'{f" <span>{subtitle}</span>" if subtitle else ""}'
@@ -505,6 +506,17 @@ function getTraces(objData, mode) {{
     addTraces(objData.fp, "Forced phot", "circle", 3, true);
     addTraces(objData.alerts, "Alerts", "x", 7, false);
 
+    // Anchor trace for the secondary (date) x-axis. Without a trace bound to
+    // x2, Plotly will not draw the overlaying axis even with matches:"x".
+    const anchorX = traces.length ? [traces[0].x[0]] : [50000];
+    traces.push({{
+        x: anchorX, y: [null],
+        xaxis: "x2", yaxis: "y",
+        type: "scatter", mode: "markers",
+        marker: {{opacity: 0, size: 1}},
+        showlegend: false, hoverinfo: "skip",
+    }});
+
     return traces;
 }}
 
@@ -555,6 +567,20 @@ function getLayout(objData, mode) {{
         font: {{size: 10, color: "#888"}},
     }}];
 
+    // Pre-compute initial date ticks from the data MJD range so the secondary
+    // axis renders with visible labels before plotly_relayout fires.
+    let initR0 = null, initR1 = null;
+    for (const src of [objData.fp, objData.alerts]) {{
+        if (!src || !src.mjd || src.mjd.length === 0) continue;
+        for (const m of src.mjd) {{
+            if (initR0 === null || m < initR0) initR0 = m;
+            if (initR1 === null || m > initR1) initR1 = m;
+        }}
+    }}
+    const initTicks = (initR0 !== null && initR1 !== null && initR1 > initR0)
+        ? computeDateTicks(initR0, initR1)
+        : {{vals: [], text: []}};
+
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const isMobile = window.matchMedia("(max-width: 720px)").matches;
     const fg = isDark ? "#e6e6e6" : "#333";
@@ -563,6 +589,13 @@ function getLayout(objData, mode) {{
 
     return {{
         xaxis: {{title: "MJD", color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},
+        xaxis2: {{
+            overlaying: "x", side: "top", matches: "x", anchor: "y",
+            tickmode: "array", tickvals: initTicks.vals, ticktext: initTicks.text,
+            showgrid: false, zeroline: false, showline: false,
+            color: fg, ticks: "outside", ticklen: 4,
+            tickfont: {{size: 10, color: fg}},
+        }},
         yaxis: {{title: yTitle,
                  autorange: reversed ? "reversed" : true,
                  ...(yBounds ? {{autorangeoptions: {{
@@ -574,11 +607,35 @@ function getLayout(objData, mode) {{
         paper_bgcolor: paper,
         plot_bgcolor: paper,
         font: {{color: fg}},
-        height: isMobile ? 260 : 360,
-        margin: isMobile ? {{l: 50, r: 10, t: 30, b: 40}} : {{l: 60, r: 30, t: 30, b: 50}},
-        legend: {{orientation: "h", yanchor: "bottom", y: 1.02, xanchor: "right", x: 1,
+        height: isMobile ? 280 : 380,
+        margin: isMobile ? {{l: 50, r: 10, t: 50, b: 40}} : {{l: 60, r: 30, t: 50, b: 50}},
+        legend: {{orientation: "h", yanchor: "bottom", y: 1.10, xanchor: "right", x: 1,
                   font: {{color: fg}}}},
     }};
+}}
+
+// Compute 6 evenly-spaced calendar-date ticks across the current MJD range
+function computeDateTicks(r0, r1) {{
+    const n = 6;
+    const vals = [], text = [];
+    for (let k = 0; k < n; k++) {{
+        const v = r0 + (r1 - r0) * (k / (n - 1));
+        vals.push(v);
+        text.push(mjdToDateStr(v));
+    }}
+    return {{vals, text}};
+}}
+
+const _updatingDateAxis = new WeakSet();
+function updateDateAxis(el) {{
+    if (_updatingDateAxis.has(el)) return;
+    const fl = el._fullLayout;
+    if (!fl || !fl.xaxis || !fl.xaxis.range) return;
+    const [r0, r1] = fl.xaxis.range;
+    const ticks = computeDateTicks(r0, r1);
+    _updatingDateAxis.add(el);
+    Plotly.relayout(el, {{"xaxis2.tickvals": ticks.vals, "xaxis2.ticktext": ticks.text}})
+        .finally(() => _updatingDateAxis.delete(el));
 }}
 
 function updateVisibility() {{
@@ -587,18 +644,73 @@ function updateVisibility() {{
     }});
 }}
 
+// Lazy render: each plot is rendered when scrolled into view; re-rendered when
+// the "render key" (mode, snr, group, theme, breakpoint) changes.
+const _renderedKey = new Map();   // plotIdx -> last key it was rendered with
+function _currentKey() {{
+    const theme = document.documentElement.getAttribute("data-theme") || "light";
+    const mobile = window.matchMedia("(max-width: 720px)").matches;
+    return [currentMode, filterSNR, currentGroup, theme, mobile].join("|");
+}}
+
+function renderPlot(i) {{
+    if (DATA[i].group !== currentGroup) return;
+    const el = document.getElementById("plot-" + i);
+    if (!el) return;
+    Plotly.purge(el);
+    const traces = getTraces(DATA[i], currentMode);
+    const layout = getLayout(DATA[i], currentMode);
+    Plotly.newPlot(el, traces, layout, {{responsive: true}}).then(() => {{
+        updateDateAxis(el);
+        el.on("plotly_relayout", () => updateDateAxis(el));
+    }});
+    _renderedKey.set(i, _currentKey());
+}}
+
+function _purgePlot(i) {{
+    const el = document.getElementById("plot-" + i);
+    if (el) Plotly.purge(el);
+    _renderedKey.delete(i);
+}}
+
+function _isInViewport(container) {{
+    const r = container.getBoundingClientRect();
+    return r.bottom > -200 && r.top < window.innerHeight + 200;
+}}
+
+const _plotObserver = ("IntersectionObserver" in window) ? new IntersectionObserver(
+    (entries) => {{
+        const key = _currentKey();
+        for (const e of entries) {{
+            if (!e.isIntersecting) continue;
+            const c = e.target;
+            if (c.dataset.group !== currentGroup) continue;
+            const i = parseInt(c.dataset.plotIdx, 10);
+            if (_renderedKey.get(i) !== key) renderPlot(i);
+        }}
+    }},
+    {{rootMargin: "200px"}}
+) : null;
+
 function renderAll() {{
     updateVisibility();
-    // Defer plot creation to ensure the browser has reflowed after visibility change
+    const key = _currentKey();
     requestAnimationFrame(function() {{
         for (let i = 0; i < DATA.length; i++) {{
-            if (DATA[i].group !== currentGroup) continue;
-            const el = document.getElementById("plot-" + i);
-            // Purge any existing plot to avoid stale zero-size state
-            Plotly.purge(el);
-            const traces = getTraces(DATA[i], currentMode);
-            const layout = getLayout(DATA[i], currentMode);
-            Plotly.newPlot(el, traces, layout, {{responsive: true}});
+            const container = document.querySelector('.plot-container[data-plot-idx="' + i + '"]');
+            if (!container) continue;
+            if (DATA[i].group !== currentGroup) {{
+                // Free memory for off-tab plots
+                if (_renderedKey.has(i)) _purgePlot(i);
+                continue;
+            }}
+            // Visible group: render if in viewport AND stale, else clear so it
+            // re-renders fresh when scrolled into view.
+            if (_isInViewport(container)) {{
+                if (_renderedKey.get(i) !== key) renderPlot(i);
+            }} else if (_renderedKey.has(i)) {{
+                _purgePlot(i);
+            }}
         }}
     }});
 }}
@@ -664,7 +776,9 @@ document.querySelectorAll(".alert-link").forEach(link => {{
         }}
         // Scroll + highlight after render
         const doScroll = function() {{
-            const container = document.getElementById("plot-" + plotIdx).parentElement;
+            const idx = parseInt(plotIdx, 10);
+            if (_renderedKey.get(idx) !== _currentKey()) renderPlot(idx);
+            const container = document.querySelector('.plot-container[data-plot-idx="' + plotIdx + '"]');
             container.scrollIntoView({{behavior: "smooth", block: "center"}});
             container.classList.remove("highlighted");
             // Force reflow so re-adding the class restarts the transition
@@ -765,6 +879,11 @@ window.addEventListener("hashchange", function() {{
     suppressHashUpdate = false;
 }});
 
+// Wire up the IntersectionObserver to lazy-render plots on scroll
+if (_plotObserver) {{
+    document.querySelectorAll(".plot-container").forEach(c => _plotObserver.observe(c));
+}}
+
 // Initial state from hash, then render + optional scroll-to-object
 const initialObj = applyHashState();
 _origRenderAll();
@@ -772,8 +891,10 @@ writeHash();
 if (initialObj) {{
     const match = DATA.findIndex(d => d.name === initialObj && d.group === currentGroup);
     if (match >= 0) {{
+        // Ensure the target plot exists before scrolling
+        if (_renderedKey.get(match) !== _currentKey()) renderPlot(match);
         requestAnimationFrame(() => requestAnimationFrame(() => {{
-            const container = document.getElementById("plot-" + match).parentElement;
+            const container = document.querySelector('.plot-container[data-plot-idx="' + match + '"]');
             container.scrollIntoView({{behavior: "smooth", block: "center"}});
             container.classList.add("highlighted");
             setTimeout(() => container.classList.remove("highlighted"), 2000);

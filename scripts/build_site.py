@@ -566,7 +566,6 @@ function getLayout(objData, mode) {{
         yaxis: {{title: yTitle,
                  autorange: reversed ? "reversed" : true,
                  ...(yBounds ? {{autorangeoptions: {{
-                     minallowed: yBounds.min, maxallowed: yBounds.max,
                      clipmin: yBounds.min, clipmax: yBounds.max,
                  }}}} : {{}}),
                  color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},

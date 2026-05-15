@@ -194,7 +194,7 @@
 </head>
 <body>
     <h1>White Dwarf Debris Monitor</h1>
-    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-05-15 15:09 UTC. </p>
+    <p class="subtitle">ZTF forced photometry and alert light curves for white dwarfs with transiting debris. ZTF Alerts last queried: 2026-05-15 15:14 UTC. </p>
     
     <p class="subtitle">Notes:
     <ul style="margin:4px 0 4px 20px; text-align:left; display:inline-block;">
@@ -411,7 +411,8 @@ function getLayout(objData, mode) {
         line: {color: "#888", width: 1, dash: "dot"},
     }];
     const annotations = [{
-        x: nowMJD, y: 1, yref: "paper", yanchor: "bottom",
+        x: nowMJD, y: 0.98, yref: "paper", yanchor: "top",
+        xanchor: "left", xshift: 3,
         text: "Today", showarrow: false,
         font: {size: 10, color: "#888"},
     }];

@@ -562,7 +562,8 @@ function getLayout(objData, mode) {{
         line: {{color: "#888", width: 1, dash: "dot"}},
     }}];
     const annotations = [{{
-        x: nowMJD, y: 1, yref: "paper", yanchor: "bottom",
+        x: nowMJD, y: 0.98, yref: "paper", yanchor: "top",
+        xanchor: "left", xshift: 3,
         text: "Today", showarrow: false,
         font: {{size: 10, color: "#888"}},
     }}];

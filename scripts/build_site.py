@@ -509,14 +509,28 @@ function getTraces(objData, mode) {{
 }}
 
 
+function fpMagMedian(objData) {{
+    // Median of forced-photometry magnitudes across all filters, used to
+    // anchor the y-range for "norm_mag" mode. Returns null if no FP data.
+    if (!objData.fp || !objData.fp.mag || objData.fp.mag.length === 0) return null;
+    const vals = objData.fp.mag.filter(m => m >= 12 && m <= 23);
+    if (vals.length === 0) return null;
+    return median(vals);
+}}
+
 function getLayout(objData, mode) {{
-    let yTitle, reversed;
+    let yTitle, yBounds = null, reversed;
     if (mode === "mag") {{
         yTitle = "Magnitude";
         reversed = true;
+        // Bound the autorange: outliers outside [12, 23] never expand the view
+        yBounds = {{min: 12, max: 23}};
     }} else if (mode === "norm_mag") {{
         yTitle = "\u0394 Magnitude";
         reversed = true;
+        const med = fpMagMedian(objData);
+        yBounds = med !== null ? {{min: 12 - med, max: 23 - med}}
+                               : {{min: -3, max: 5}};
     }} else if (mode === "flux") {{
         yTitle = "Flux";
         reversed = false;
@@ -549,7 +563,12 @@ function getLayout(objData, mode) {{
 
     return {{
         xaxis: {{title: "MJD", color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},
-        yaxis: {{title: yTitle, autorange: reversed ? "reversed" : true,
+        yaxis: {{title: yTitle,
+                 autorange: reversed ? "reversed" : true,
+                 ...(yBounds ? {{autorangeoptions: {{
+                     minallowed: yBounds.min, maxallowed: yBounds.max,
+                     clipmin: yBounds.min, clipmax: yBounds.max,
+                 }}}} : {{}}),
                  color: fg, gridcolor: gridColor, zerolinecolor: gridColor}},
         shapes: shapes,
         annotations: annotations,
